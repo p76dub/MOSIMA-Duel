@@ -7,6 +7,13 @@ import jade.core.behaviours.OneShotBehaviour;
 import org.jpl7.Query;
 import sma.actionsBehaviours.PrologBehavior;
 import sma.agents.FinalAgent;
+import weka.classifiers.Classifier;
+import weka.classifiers.Evaluation;
+import weka.classifiers.meta.FilteredClassifier;
+import weka.classifiers.trees.J48;
+import weka.core.Instances;
+import weka.core.converters.ConverterUtils.DataSource;
+import weka.filters.unsupervised.attribute.Remove;
 
 import java.util.ArrayList;
 
@@ -35,6 +42,9 @@ public class MyAgent extends FinalAgent {
     public static final String REASONING_FILE = "./ressources/prolog/duel/reasoning.pl";
 
     private Situation sit;
+    private DataSource dataSource;
+    private Instances instances;
+    private FilteredClassifier classifier;
 
     /**
      * Setup the agent.
@@ -53,6 +63,16 @@ public class MyAgent extends FinalAgent {
 
         // load prolog file
         loadDecisionFile();
+
+        // Load resources
+        try {
+            dataSource = new DataSource("./ressources/learningBase/defeat_victory.arff");
+            instances = dataSource.getDataSet();
+            createClassifier();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 
     /**
@@ -64,9 +84,9 @@ public class MyAgent extends FinalAgent {
         // Deploy agent
         final Object[] args = getArguments();
         deployAgent((NewEnv) args[0], true);
+        final FSMBehaviour fsm = new FSMBehaviour();
 
         // Create FSM
-        final FSMBehaviour fsm = new FSMBehaviour();
 
         // Register states
         fsm.registerFirstState(new DecisionBehaviour(this), DECISION);
@@ -105,6 +125,11 @@ public class MyAgent extends FinalAgent {
         return sit;
     }
 
+    public Evaluation eval(Instances testInstances) throws Exception {
+        Evaluation eval = new Evaluation(instances);
+        eval.evaluateModel(classifier, testInstances);
+        return eval;
+    }
     /**
      * Load prolog file for the decision process.
      */
@@ -119,5 +144,17 @@ public class MyAgent extends FinalAgent {
             System.err.println("Behaviour file for Prolog agent not found");
             System.exit(0);
         }
+    }
+
+    private void createClassifier() throws Exception {
+        J48 tree = new J48();
+        Remove rm = new Remove();
+        rm.setAttributeIndices("5");
+        rm.setAttributeIndices("6");
+
+        classifier = new FilteredClassifier();
+        classifier.setFilter(rm);
+        classifier.setClassifier(tree);
+        classifier.buildClassifier(instances);
     }
 }
