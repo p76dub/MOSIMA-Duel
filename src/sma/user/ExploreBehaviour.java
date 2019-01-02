@@ -5,8 +5,11 @@ import env.jme.Situation;
 import jade.core.Agent;
 import jade.core.behaviours.SimpleBehaviour;
 import sma.AbstractAgent;
+import weka.core.Instance;
+import weka.core.Instances;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -93,6 +96,7 @@ public class ExploreBehaviour extends SimpleBehaviour {
                 //AbstractAgent.VISION_ANGLE
                 (float) (2*Math.PI)
         );
+        evaluatePoints(points);
         return getHighest(points);
     }
 
@@ -107,5 +111,33 @@ public class ExploreBehaviour extends SimpleBehaviour {
             }
         }
         return best;
+    }
+
+    private void evaluatePoints(List<Vector3f> list) {
+        MyAgent agt = getMyAgent();
+        Vector3f current = agt.getCurrentPosition();
+
+        for (Vector3f point : list) {
+            agt.teleport(point);
+
+            Situation sit = agt.getAgentSituation();
+            Instance instance = new Instance(agt.getInstances().numAttributes());
+
+            instance.setDataset(agt.getInstances());
+            instance.setValue(0, (double) sit.averageAltitude);
+            instance.setValue(1, (double) sit.maxAltitude);
+            instance.setValue(2, (double) sit.currentAltitude);
+            instance.setValue(3, (double) sit.fovValue);
+            instance.setValue(4, sit.lastAction);
+            instance.setValue(5, (double) sit.life);
+            // instance.setValue(6, (double) sit.impactProba);
+            try {
+                System.out.println(agt.eval(instance));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        agt.teleport(current);
     }
 }

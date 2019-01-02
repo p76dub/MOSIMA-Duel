@@ -11,6 +11,7 @@ import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.meta.FilteredClassifier;
 import weka.classifiers.trees.J48;
+import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
 import weka.filters.unsupervised.attribute.Remove;
@@ -66,7 +67,7 @@ public class MyAgent extends FinalAgent {
 
         // Load resources
         try {
-            dataSource = new DataSource("./ressources/learningBase/defeat_victory.arff");
+            dataSource = new DataSource("./ressources/learningBase/states.arff");
             instances = dataSource.getDataSet();
             createClassifier();
         } catch (Exception e) {
@@ -125,11 +126,19 @@ public class MyAgent extends FinalAgent {
         return sit;
     }
 
-    public Evaluation eval(Instances testInstances) throws Exception {
-        Evaluation eval = new Evaluation(instances);
-        eval.evaluateModel(classifier, testInstances);
-        return eval;
+    public String eval(Instance testInstance) throws Exception {
+        double result = classifier.classifyInstance(testInstance);
+        return result == 1.0 ? "NOTINSIGHT" : "INSIGHT";
     }
+
+    public Instances getInstances() {
+        return instances;
+    }
+
+    public DataSource getDataSet() {
+        return dataSource;
+    }
+
     /**
      * Load prolog file for the decision process.
      */
@@ -155,6 +164,8 @@ public class MyAgent extends FinalAgent {
         classifier = new FilteredClassifier();
         classifier.setFilter(rm);
         classifier.setClassifier(tree);
+
+        instances.setClassIndex(instances.numAttributes() - 1);
         classifier.buildClassifier(instances);
     }
 }
