@@ -6,7 +6,6 @@ import jade.core.Agent;
 import jade.core.behaviours.SimpleBehaviour;
 import sma.AbstractAgent;
 import weka.core.Instance;
-import weka.core.Instances;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,10 +45,14 @@ public class ExploreBehaviour extends SimpleBehaviour {
 
         if (computedTarget == null) { // Select the move this behaviour will make
             startPosition = new Vector3f(getMyAgent().getCurrentPosition());
-            if (random.nextInt(100) <= RANDOM_PROBABILITY) { // Random move
+            /*if (random.nextInt(100) <= RANDOM_PROBABILITY) { // Random move
                 computedTarget = getRandomTarget();
             } else {  // Go to the highest position
                 computedTarget = findHighestNeighbor();
+            }*/
+            computedTarget = getBestNeighbour();
+            if (computedTarget == null) {
+                computedTarget = getRandomTarget();
             }
             agent.moveTo(computedTarget);
         }
@@ -96,8 +99,24 @@ public class ExploreBehaviour extends SimpleBehaviour {
                 //AbstractAgent.VISION_ANGLE
                 (float) (2*Math.PI)
         );
-        evaluatePoints(points);
+
         return getHighest(points);
+    }
+
+    private Vector3f getBestNeighbour() {
+        MyAgent agent = getMyAgent();
+        ArrayList<Vector3f> points = agent.sphereCast(
+                agent.getSpatial(),
+                6, //AbstractAgent.NEIGHBORHOOD_DISTANCE,
+                AbstractAgent.CLOSE_PRECISION,
+                //AbstractAgent.VISION_ANGLE
+                (float) (2*Math.PI)
+        );
+        List<Vector3f> candidates = evaluatePoints(points);
+        if (candidates.size() != 0) {
+            return candidates.get(new Random().nextInt(candidates.size()));
+        }
+        return null;
     }
 
     private Vector3f getHighest(ArrayList<Vector3f> points){
@@ -113,9 +132,10 @@ public class ExploreBehaviour extends SimpleBehaviour {
         return best;
     }
 
-    private void evaluatePoints(List<Vector3f> list) {
+    private List<Vector3f> evaluatePoints(List<Vector3f> list) {
         MyAgent agt = getMyAgent();
         Vector3f current = agt.getCurrentPosition();
+        List<Vector3f> points = new ArrayList<>();
 
         for (Vector3f point : list) {
             agt.teleport(point);
@@ -130,14 +150,18 @@ public class ExploreBehaviour extends SimpleBehaviour {
             instance.setValue(3, (double) sit.fovValue);
             instance.setValue(4, sit.lastAction);
             instance.setValue(5, (double) sit.life);
-            // instance.setValue(6, (double) sit.impactProba);
+            instance.setValue(6, "NOTINSIGHT"); // Not used
+
             try {
-                System.out.println(agt.eval(instance));
+                if(agt.eval(instance).equals("INSIGHT")) {
+                    points.add(point);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
         agt.teleport(current);
+        return points;
     }
 }

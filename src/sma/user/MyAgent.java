@@ -158,8 +158,8 @@ public class MyAgent extends FinalAgent {
     private void createClassifier() throws Exception {
         J48 tree = new J48();
         Remove rm = new Remove();
-        rm.setAttributeIndices("5");
-        rm.setAttributeIndices("6");
+        //rm.setAttributeIndices("5");
+        //rm.setAttributeIndices("6");
 
         classifier = new FilteredClassifier();
         classifier.setFilter(rm);
