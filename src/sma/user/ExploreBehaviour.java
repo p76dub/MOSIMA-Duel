@@ -8,6 +8,7 @@ import org.jpl7.JPL;
 import org.jpl7.Query;
 import org.jpl7.Term;
 import sma.AbstractAgent;
+import weka.core.DenseInstance;
 import weka.core.Instance;
 
 import java.util.ArrayList;
@@ -141,7 +142,7 @@ public class ExploreBehaviour extends SimpleBehaviour {
         agt.teleport(position);
 
         Situation sit = agt.getAgentSituation();
-        Instance instance = new Instance(agt.getInstances().numAttributes());
+        Instance instance = new DenseInstance(agt.getInstances().numAttributes());
 
         instance.setDataset(agt.getInstances());
         instance.setValue(0, (double) sit.averageAltitude);

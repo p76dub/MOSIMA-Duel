@@ -26,6 +26,7 @@ import weka.classifiers.Classifier;
 import weka.classifiers.trees.J48;
 import weka.core.Attribute;
 import weka.core.FastVector;
+import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.SerializationHelper;
@@ -159,7 +160,7 @@ public class MessageClassifier
    */
   private Instance makeInstance(String text, Instances data) {
     // Create instance of length two.
-    Instance instance = new Instance(2);
+    Instance instance = new DenseInstance(2);
 
     // Set value for message attribute
     Attribute messageAtt = data.attribute("Message");
