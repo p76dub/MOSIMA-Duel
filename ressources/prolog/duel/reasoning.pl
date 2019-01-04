@@ -5,12 +5,17 @@ shotImpact(Probability):-
 
 /* DECISIONS */
 
-explore(EnemyInSight):-
-	not(EnemyInSight).
+explore(Player):-
+	not(see(Player)).
 
-toOpenFire(EnemyInSight,P):-
+toOpenFire(Player,P):-
 	shotImpact(P),
-	EnemyInSight.
+	see(Player).
 
-attack(EnemyInSight):-
-	EnemyInSight.
+attack(Player):-
+	see(Player).
+
+see(Player):-
+    jpl_call(Player, enemyInSight, [], X),
+    jpl_is_true(X).
+

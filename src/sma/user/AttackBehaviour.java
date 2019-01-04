@@ -4,7 +4,10 @@ import com.jme3.math.Vector3f;
 import env.jme.Situation;
 import jade.core.Agent;
 import jade.core.behaviours.OneShotBehaviour;
+import org.jpl7.Float;
+import org.jpl7.JPL;
 import org.jpl7.Query;
+import org.jpl7.Term;
 import sma.AbstractAgent;
 
 /**
@@ -55,10 +58,9 @@ public class AttackBehaviour extends OneShotBehaviour {
     }
 
     private boolean askForFirePermission(){
-        String query = "toOpenFire("
-                + sit.enemyInSight +","
-                + sit.impactProba+")";
-
-        return Query.hasSolution(query);
+        return new Query(
+                "toOpenFire",
+                new Term[] {JPL.newJRef(getMyAgent()), new Float(sit.impactProba)}
+        ).hasSolution();
     }
 }

@@ -139,6 +139,10 @@ public class MyAgent extends FinalAgent {
         return dataSource;
     }
 
+    public boolean enemyInSight() {
+        return getAgentSituation().enemyInSight;
+    }
+
     /**
      * Load prolog file for the decision process.
      */

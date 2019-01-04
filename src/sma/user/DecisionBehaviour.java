@@ -3,7 +3,9 @@ package sma.user;
 import env.jme.Situation;
 import jade.core.Agent;
 import jade.core.behaviours.OneShotBehaviour;
+import org.jpl7.JPL;
 import org.jpl7.Query;
+import org.jpl7.Term;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -27,18 +29,20 @@ public class DecisionBehaviour extends OneShotBehaviour {
     private enum Actions {
         EXPLORE(DecisionBehaviour.EXPLORE) {
             @Override
-            public String getPrologQuery(Situation sit) {
-                ArrayList<Object> terms = new ArrayList<>();
-                terms.add(sit.enemyInSight);
-                return prologQuery("explore", terms);
+            public Query getPrologQuery(MyAgent agent) {
+                return new Query(
+                        "explore",
+                        new Term[] {JPL.newJRef(agent)}
+                );
             }
         },
         ATTACK(DecisionBehaviour.ATTACK) {
             @Override
-            public String getPrologQuery(Situation sit) {
-                ArrayList<Object> terms = new ArrayList<>();
-                terms.add(sit.enemyInSight);
-                return prologQuery("attack", terms);
+            public Query getPrologQuery(MyAgent agent) {
+                return new Query(
+                        "attack",
+                        new Term[] {JPL.newJRef(agent)}
+                );
             }
         };
 
@@ -56,7 +60,7 @@ public class DecisionBehaviour extends OneShotBehaviour {
         }
 
         // The prolog query associated to the action
-        public abstract String getPrologQuery(Situation sit);
+        public abstract Query getPrologQuery(MyAgent agent);
 
         // TOOLS
 
@@ -71,7 +75,9 @@ public class DecisionBehaviour extends OneShotBehaviour {
             for (Object t: terms) {
                 query.append(t).append(",");
             }
-            return query.substring(0,query.length() - 1) + ")";
+            String result = query.substring(0,query.length() - 1) + ")";
+            System.out.println(result);
+            return result;
         }
     }
 
@@ -115,7 +121,7 @@ public class DecisionBehaviour extends OneShotBehaviour {
         } else {
             for (Actions action : Actions.values()) {
                 currentSituation = agent.getAgentSituation(); // Will be more precise than using the previous one
-                if (Query.hasSolution(action.getPrologQuery(currentSituation))) {
+                if (action.getPrologQuery(getMyAgent()).hasSolution()) {
                     returnValue = action.getReturnCode();
                 }
             }

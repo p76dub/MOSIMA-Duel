@@ -56,6 +56,7 @@ public class ExploreBehaviour extends SimpleBehaviour {
             }
             agent.moveTo(computedTarget);
         }
+
         // The behaviour runs until target is reached or max distance
         isDone = computedTarget.distance(agent.getCurrentPosition()) <= PRECISION
                 || startPosition.distance(agent.getCurrentPosition()) >= MAX_DISTANCE
