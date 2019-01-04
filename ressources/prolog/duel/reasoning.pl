@@ -19,3 +19,6 @@ see(Player):-
     jpl_call(Player, enemyInSight, [], X),
     jpl_is_true(X).
 
+goodPosition(Player, Position):-
+    jpl_call(Player, isAGoodPosition, [Position], X),
+    jpl_is_true(X).

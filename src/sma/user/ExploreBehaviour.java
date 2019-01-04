@@ -4,6 +4,9 @@ import com.jme3.math.Vector3f;
 import env.jme.Situation;
 import jade.core.Agent;
 import jade.core.behaviours.SimpleBehaviour;
+import org.jpl7.JPL;
+import org.jpl7.Query;
+import org.jpl7.Term;
 import sma.AbstractAgent;
 import weka.core.Instance;
 
@@ -133,32 +136,37 @@ public class ExploreBehaviour extends SimpleBehaviour {
         return best;
     }
 
+    public boolean isAGoodPosition(Vector3f position) {
+        MyAgent agt = getMyAgent();
+        agt.teleport(position);
+
+        Situation sit = agt.getAgentSituation();
+        Instance instance = new Instance(agt.getInstances().numAttributes());
+
+        instance.setDataset(agt.getInstances());
+        instance.setValue(0, (double) sit.averageAltitude);
+        instance.setValue(1, (double) sit.maxAltitude);
+        instance.setValue(2, (double) sit.currentAltitude);
+        instance.setValue(3, (double) sit.fovValue);
+        instance.setValue(4, sit.lastAction);
+        instance.setValue(5, (double) sit.life);
+        instance.setValue(6, "NOTINSIGHT"); // Not used
+
+        try {
+            return agt.eval(instance).equals("INSIGHT");
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private List<Vector3f> evaluatePoints(List<Vector3f> list) {
         MyAgent agt = getMyAgent();
         Vector3f current = agt.getCurrentPosition();
         List<Vector3f> points = new ArrayList<>();
 
         for (Vector3f point : list) {
-            agt.teleport(point);
-
-            Situation sit = agt.getAgentSituation();
-            Instance instance = new Instance(agt.getInstances().numAttributes());
-
-            instance.setDataset(agt.getInstances());
-            instance.setValue(0, (double) sit.averageAltitude);
-            instance.setValue(1, (double) sit.maxAltitude);
-            instance.setValue(2, (double) sit.currentAltitude);
-            instance.setValue(3, (double) sit.fovValue);
-            instance.setValue(4, sit.lastAction);
-            instance.setValue(5, (double) sit.life);
-            instance.setValue(6, "NOTINSIGHT"); // Not used
-
-            try {
-                if(agt.eval(instance).equals("INSIGHT")) {
-                    points.add(point);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (new Query("goodPosition", new Term[] {JPL.newJRef(this), JPL.newJRef(point)}).hasSolution()) {
+                points.add(point);
             }
         }
 
