@@ -28,9 +28,9 @@ public class Principal {
 	public static void main(String[] args){
 
 		//0) Create the environment
-		env = NewEnv.launchRandom(64);
+		//env = NewEnv.launchRandom(64);
 		//env = NewEnv.launch("PerlinMap");
-		//env = Environment.launch("circleMap3");
+		env = NewEnv.launch("circleMap2");
 		emptyPlatform(containerList);
 
 		//2) create agents and add them to the platssSSSform.

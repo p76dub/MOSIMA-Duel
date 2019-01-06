@@ -68,6 +68,7 @@ public class MyAgent extends FinalAgent {
         // Load resources
         try {
             dataSource = new DataSource("./ressources/learningBase/states.arff");
+            // dataSource = new DataSource("./ressources/learningBase/defeat_victory.arff");
             instances = dataSource.getDataSet();
             createClassifier();
         } catch (Exception e) {
@@ -129,6 +130,7 @@ public class MyAgent extends FinalAgent {
     public String eval(Instance testInstance) throws Exception {
         double result = classifier.classifyInstance(testInstance);
         return result == 1.0 ? "NOTINSIGHT" : "INSIGHT";
+        // return result == 1.0 ? "DEFEAT" : "VICTORY";
     }
 
     public Instances getInstances() {
@@ -162,8 +164,8 @@ public class MyAgent extends FinalAgent {
     private void createClassifier() throws Exception {
         J48 tree = new J48();
         Remove rm = new Remove();
-        //rm.setAttributeIndices("5");
-        //rm.setAttributeIndices("6");
+        rm.setAttributeIndices("5");
+        rm.setAttributeIndices("6");
 
         classifier = new FilteredClassifier();
         classifier.setFilter(rm);

@@ -151,9 +151,11 @@ public class ExploreBehaviour extends SimpleBehaviour {
         instance.setValue(4, sit.lastAction);
         instance.setValue(5, (double) sit.life);
         instance.setValue(6, "NOTINSIGHT"); // Not used
+        // instance.setValue(6, "VICTORY"); // Not used
 
         try {
             return agt.eval(instance).equals("INSIGHT");
+            // return agt.eval(instance).equals("VICTORY");
         } catch (Exception e) {
             return false;
         }
